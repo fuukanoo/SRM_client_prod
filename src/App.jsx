@@ -1,6 +1,11 @@
-// App.jsx
-
 import React, { useState, useEffect, useRef } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate
+} from "react-router-dom";
 import StepNavigator from "./components/StepNavigator";
 import ProfileScreen from "./components/ProfileScreen";
 import EntryAdjustmentScreen from "./components/EntryAdjustmentScreen";
@@ -8,76 +13,134 @@ import CasualScreen from "./components/CasualScreen";
 import CasualAdjustmentScreen from "./components/CasualAdjustmentScreen";
 import FirstInterviewScreen from "./components/FirstInterviewScreen";
 import FirstInterviewAdjustmentScreen from "./components/FirstInterviewAdjustmentScreen";
+import HRInterviewScreen from "./components/HRInterviewScreen";
+import HRInterviewAdjustmentScreen from "./components/HRInterviewAdjustmentScreen";
 import SecondInterviewScreen from "./components/SecondInterviewScreen";
 import SecondInterviewAdjustmentScreen from "./components/SecondInterviewAdjustmentScreen";
 import FinalInterviewScreen from "./components/FinalInterviewScreen";
 import FinalInterviewAdjustmentScreen from "./components/FinalInterviewAdjustmentScreen";
+import OfferInterviewScreen from "./components/OfferInterviewScreen";
 import OtherScreens from "./components/OtherScreens";
+import CandidateList from "./components/CandidateList";
+import CandidateDetail from "./components/CandidateDetail";
+// import Header from "./components/Header";
+import Layout from "./Layout";
+import Fab from "@mui/material/Fab";
+import {
+  TextField,
+  Button,
+  Card,
+  Typography,
+  Box,
+  Grid,
+  Container,
+  Divider,
+  Link,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle 
+} from "@mui/material";
 
-// import "./components/ProfileScreen.css";
-import { TextField, Button, Card, CardContent, Typography, Box, Grid, Container, Divider, Link } from "@mui/material";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+// Azure Blob Storage 用アップロード処理関数
+async function uploadFile(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await fetch("http://localhost:3001/upload_resume/", {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    throw new Error("アップロードエラー");
+  }
+  const data = await response.json();
+  return data.url;
+}
 
 function App() {
+  const navigate = useNavigate();
+
   const [profileData, setProfileData] = useState({
     name: "",
     furigana: "",
     photo: null,
+    photo_url: null,
     education: "",
     career: "",
     resume: null,
+    resume_url: null,
     careerSheet: null,
+    career_sheet_url: null,
     route: "",
     birthdate: "",
     address: "",
     origin: "",
     employmentStatus: "",
     university: "",
-    highSchool: "",
+    highSchool: ""
   });
-  
 
   const [isSubmitted, setIsSubmitted] = useState(false);
-
   const [casualData, setCasualData] = useState({
+    interview_data: "",
+    interviewer: "",
     result: "",
-    honesty: "",
-    teamLove: "",
-    charm: "",
-    humility: "",
-    notes: "",
+    personality: "",
+    character: "",
+    remarks: ""
   });
-
   const [firstInterviewData, setFirstInterviewData] = useState({
-    technicalSkills: "",
-    problemSolving: "",
-    logicalThinking: "",
-    leadership: "",
-    careerVision: "",
+    interview_data: "",
+    interviewer: "",
+    result: "",
+    skill: "",
+    personality: "",
+    character: "",
+    values: "",
+    culture: "",
+    remarks: ""
   });
-
+  const [HRInterviewData, setHRInterviewData] = useState({
+    interview_data: "",
+    interviewer: "",
+    values: "",
+    culture: "",
+    remarks: ""
+  });
   const [secondInterviewData, setSecondInterviewData] = useState({
-    technicalSkills: "",
-    problemSolving: "",
-    logicalThinking: "",
-    leadership: "",
-    careerVision: "",
+    interview_data: "",
+    interviewer: "",
+    result: "",
+    skill: "",
+    personality: "",
+    character: "",
+    values: "",
+    culture: "",
+    remarks: ""
   });
-
   const [finalInterviewData, setFinalInterviewData] = useState({
-    technicalSkills: "",
-    problemSolving: "",
-    logicalThinking: "",
-    leadership: "",
-    careerVision: "",
+    interview_data: "",
+    result: "",
+    skill: "",
+    personality: "",
+    character: "",
+    values: "",
+    culture: "",
+    remarks: ""
   });
 
-  const [followupData, setFollowupData] = useState({
-    notes: "",
+
+  const [offerInterviewData, setOfferInterviewData] = useState({
+    interview_data: "",
+    interviewer: "",
+    result: "",
+    remarks: ""
   });
+  const [followupDataMap, setFollowupDataMap] = useState({});
+
 
   const [currentStep, setCurrentStep] = useState(0);
-
   const [stepLabels, setStepLabels] = useState([
     "エントリー",
     "調整中",
@@ -85,69 +148,183 @@ function App() {
     "調整中",
     "1次面接",
     "調整中",
+    "人事面談",
+    "調整中",
     "2次面接",
     "調整中",
     "最終面接",
-    "調整中"
+    "調整中",
+    "オファー面談"
   ]);
-
   const [steps, setSteps] = useState([
-    { id: 1, type: 'profile' },
-    { id: 2, type: 'entryAdjustment' },
-    { id: 3, type: 'casual' },
-    { id: 4, type: 'casualAdjustment' },
-    { id: 5, type: 'firstInterview' },
-    { id: 6, type: 'firstInterviewAdjustment' },
-    { id: 7, type: 'secondInterview' },
-    { id: 8, type: 'secondInterviewAdjustment' },
-    { id: 9, type: 'finalInterview' },
-    { id: 10, type: 'finalInterviewAdjustment' },
-    { id: 11, type: 'other' },
+    { id: 1, type: "profile" },
+    { id: 2, type: "entryAdjustment" },
+    { id: 3, type: "casual" },
+    { id: 4, type: "casualAdjustment" },
+    { id: 5, type: "firstInterview" },
+    { id: 6, type: "firstInterviewAdjustment" },
+    { id: 7, type: "HRInterview" },
+    { id: 8, type: "HRInterviewAdjustment" },
+    { id: 9, type: "secondInterview" },
+    { id: 10, type: "secondInterviewAdjustment" },
+    { id: 11, type: "finalInterview" },
+    { id: 12, type: "finalInterviewAdjustment" },
+    { id: 13, type: "offerInterview" },
+    { id: 14, type: "other" }
   ]);
 
-  // // フォロー面談の追加
-  // const handleAddStep = () => {
-  //   const newStepIndex = steps.length;
-  //   const newStepName = `フォロー面談 ${newStepIndex - 10}`;
-  //   setStepLabels((prev) => [...prev, newStepName]);
-  //   setSteps((prev) => [...prev, { id: newStepIndex, type: "followUp" }]);
-  //   setCurrentStep(newStepIndex);
-  // };
+  // フォロー面談追加（両ブランチでほぼ同じ）
+  const handleAddStep = () => {
+    const followupCount = steps.filter((step) =>
+      step.type.startsWith("followUp")
+    ).length;
+    const followupNumber = followupCount + 1;
+    const newStepName = `フォロー面談 ${followupNumber}`;
+    setStepLabels((prev) => [...prev, newStepName]);
+    setSteps((prev) => [
+      ...prev,
+      { id: prev.length + 1, type: `followUpInterview${followupNumber}` }
+    ]);
+    setCurrentStep(steps.length);
+  };
+
+  const [scale, setScale] = useState(1);
+
+  {/*辞退確認画面*/}
+  const [open, setOpen] = useState(false)
+  {/*辞退確認画面を開ける*/}
+  const handleOpen = () => {
+    setOpen(true);
+  }
+  {/*辞退確認画面を閉じる*/}
+  const handleClose = () => {
+    setOpen(false);
+  }
+  {/*辞退確認画面で辞退ボタンを押したときの処理*/}
+  const handleConfirm = () => {
+    console.log("辞退しました");
+    setOpen(false);
+  }
+
+  useEffect(() => {
+    const updateScale = () => {
+      const fixedWidth = 1280;
+      const fixedHeight = 720;
+      const scaleX = window.innerWidth / fixedWidth;
+      const scaleY = window.innerHeight / fixedHeight;
+      setScale(Math.min(scaleX, scaleY, 1));
+    };
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, []);
+
+  const fileInputRef = useRef(null);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // 写真アップロード用
+  const handlePhotoUpload = async (e) => {
+    const { files } = e.target;
+    if (files && files[0]) {
+      try {
+        const uploadedUrl = await uploadFile(files[0]);
+        setProfileData((prev) => ({
+          ...prev,
+          photo_url: uploadedUrl,
+          photo: files[0]
+        }));
+      } catch (error) {
+        console.error("写真アップロードに失敗:", error);
+      }
+    }
+  };
+
+  // 履歴書アップロード用
+  const handleResumeUpload = async (e) => {
+    const { files } = e.target;
+    if (files && files[0]) {
+      try {
+        const uploadedUrl = await uploadFile(files[0]);
+        setProfileData((prev) => ({
+          ...prev,
+          resume_url: uploadedUrl,
+          resume: files[0]
+        }));
+      } catch (error) {
+        console.error("履歴書アップロードに失敗:", error);
+      }
+    }
+  };
+
+  // 職務経歴書アップロード用
+  const handleCareerSheetUpload = async (e) => {
+    const { files } = e.target;
+    if (files && files[0]) {
+      try {
+        const uploadedUrl = await uploadFile(files[0]);
+        setProfileData((prev) => ({
+          ...prev,
+          career_sheet_url: uploadedUrl,
+          careerSheet: files[0]
+        }));
+      } catch (error) {
+        console.error("職務経歴書アップロードに失敗:", error);
+      }
+    }
+  };
 
   const handleRegister = async () => {
-    // stateに保持されたprofileDataをバックエンド用に整形
     const candidateData = {
       name: profileData.name,
       furigana: profileData.furigana,
-      photo_url: profileData.photo ? URL.createObjectURL(profileData.photo) : null,
+      photo_url: profileData.photo_url,
       education: profileData.education,
       career: profileData.career,
-      resume_url: profileData.resume ? URL.createObjectURL(profileData.resume) : null,
-      career_sheet_url: profileData.careerSheet ? URL.createObjectURL(profileData.careerSheet) : null,
+      resume_url: profileData.resume_url,
+      career_sheet_url: profileData.career_sheet_url,
       route: profileData.route,
-      birthdate: profileData.birthdate, // "YYYY-MM-DD"形式に整形する場合も検討
+      birthdate: profileData.birthdate,
       address: profileData.address,
       origin: profileData.origin,
       employment_status: profileData.employmentStatus,
       university: profileData.university,
-      high_school: profileData.highSchool,
+      high_school: profileData.highSchool
     };
+  
     try {
-      const response = await fetch("http://localhost:3001/candidates/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(candidateData)
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Candidate登録成功", data);
-        setProfileData((prev) => ({ ...prev, id: data.id }));
-        setIsSubmitted(true);  // 登録成功後、表示専用モードに切り替える
-        // 成功時の処理（画面遷移や通知表示など）
+      if (profileData.id) {
+        // 既存の候補者情報を更新
+        const response = await fetch(`http://localhost:3001/candidates/${profileData.id}`, {
+          method: "PUT", // または PATCH（バックエンドの仕様に合わせる）
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(candidateData)
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Candidate更新成功", data);
+          setProfileData(data);
+          setIsSubmitted(true);
+        } else {
+          console.error("更新エラー:", response.statusText);
+        }
       } else {
-        console.error("登録エラー:", response.statusText);
+        // 新規登録
+        const response = await fetch("http://localhost:3001/candidates/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(candidateData)
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Candidate登録成功", data);
+          setProfileData((prev) => ({ ...prev, id: data.id }));
+          setIsSubmitted(true);
+        } else {
+          console.error("登録エラー:", response.statusText);
+        }
       }
     } catch (error) {
       console.error("ネットワークエラー:", error);
@@ -155,620 +332,113 @@ function App() {
   };
   
 
-
-  // 例: handleAddStep の修正例
-const handleAddStep = () => {
-  // 既存のフォロー面談ステップ数を数える
-  const followupCount = steps.filter(step => step.type.startsWith("followUp")).length;
-  const followupNumber = followupCount + 1; // 新たな番号を付与
-  const newStepName = `フォロー面談 ${followupNumber}`;
-  
-  // 新規ステップの type を "followUp" + 番号 に設定
-  setStepLabels(prev => [...prev, newStepName]);
-  setSteps(prev => [...prev, { id: prev.length + 1, type: `followUp${followupNumber}` }]);
-  setCurrentStep(steps.length);
-};
-
-
-
-
-
-
-  const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    const updateScale = () => {
-      const fixedWidth = 1280;
-      const fixedHeight = 720;
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-  
-      const scaleX = windowWidth / fixedWidth;
-      const scaleY = windowHeight / fixedHeight;
-  
-      // 画面が小さい場合は縮小、大きい場合は拡大しない（最大値は 1）
-      const newScale = Math.min(scaleX, scaleY, 1);
-      setScale(newScale);
-    };
-  
-    // 初回レンダリング時にスケールを設定
-    updateScale();
-  
-    // ウィンドウリサイズ時にスケールを更新
-    window.addEventListener("resize", updateScale);
-  
-    // クリーンアップ
-    return () => window.removeEventListener("resize", updateScale);
-  }, []);
-  
-  const photoPreviewUrl = profileData.photo ? URL.createObjectURL(profileData.photo) : null;
-  const fileInputRef = useRef(null);
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProfileData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileUpload = (e) => {
-    const { name, files } = e.target;
-    setProfileData((prev) => ({ ...prev, [name]: files[0] }));
-  };
-
+  // プレビュー用URL（写真の場合はアップロード済みの photo_url を利用）
+  const photoPreviewUrl = profileData.photo_url;
 
   return (
-    <Router>
-      <Box className="app-container">
-        <Box
-          className="scale-wrapper"
-          sx={{
-            transform: `scale(${scale})`,
-          }}
-        >
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Typography variant="h5" gutterBottom sx={{ fontSize: '1.2rem' }}>
-              個人プロフィール
-            </Typography>
-            <Divider sx={{ mb: 1.25 }} />
-            <Grid container spacing={4}>
-              {/* 左側セクション */}
+    <>
+      <Routes>
+        {/* 候補者一覧は全画面表示（共通コンテンツなし） */}
+        <Route path="/candidates" element={<CandidateList />} />
+        <Route path="/" element={<CandidateList />} />
 
-              <Grid item xs={12} md={4}>
-                <Card
-                  sx={{
-                    p: { xs: 2, md: 2 },                // パディングを画面サイズに応じて調整
-                    boxShadow: 3,
-                    maxHeight: { xs: '80vh', md: '72vh', lg: '68vh' }, // 高さの制限とレスポンシブ調整
-                    overflowY: 'auto',
-                  }}
-                >
-                  {/* 写真と名前の部分 */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-end",
-                      gap: 2,
-                    }}
-                  >                   
-                    <Box
-                      sx={{
-                        width: { xs: 90, md: 90 },          // 幅を画面サイズに合わせて調整
-                        height: { xs: 120, md: 120 },         // 高さも同様に調整
-                        flexShrink: 0,
-                        backgroundColor: "#f5f5f5",
-                        borderRadius: "8px",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        backgroundImage: photoPreviewUrl ? `url(${photoPreviewUrl})` : "none",
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        border: "2px solid #ddd",
-                        cursor: isSubmitted ? "default" : "pointer", // 表示専用の場合はクリック不可
-                      }}
-                      onClick={isSubmitted ? undefined : () => fileInputRef.current.click()}
-                    >
-                      {!photoPreviewUrl && (
-                        <Typography variant="body2" sx={{ fontSize: { xs: '0.7rem', md: '0.8rem' } }}>
-                          写真未挿入
-                        </Typography>
-                      )}
-                    </Box>
+        {/* 候補者詳細はLayoutでラップして左側のプロフィールフォームとステップナビゲーションを表示 */}
+        <Route
+          path="/candidate/:candidateId/*"
+          element={
+            <Layout
+              profileData={profileData}
+              isSubmitted={isSubmitted}
+              handleInputChange={handleInputChange}
+              fileInputRef={fileInputRef}
+              handlePhotoUpload={handlePhotoUpload}
+              handleResumeUpload={handleResumeUpload}
+              handleCareerSheetUpload={handleCareerSheetUpload}
+              handleRegister={handleRegister}
+              stepLabels={stepLabels}
+              currentStep={currentStep}
+              setCurrentStep={setCurrentStep}
+              handleAddStep={() => {
+                // 追加のフォロー面談処理など
+                const followupCount = stepLabels.filter((label) => label.startsWith("フォロー面談")).length;
+                const newLabel = `フォロー面談 ${followupCount + 1}`;
+                setStepLabels((prev) => [...prev, newLabel]);
+                setCurrentStep(stepLabels.length);
+              }}
+              photoPreviewUrl={profileData.photo_url}
+            >
+              <CandidateDetail
+                profileData={profileData}
+                setProfileData={setProfileData}
+                casualData={casualData}
+                setCasualData={setCasualData}
+                firstInterviewData={firstInterviewData}
+                setFirstInterviewData={setFirstInterviewData}
+                HRInterviewData={HRInterviewData}
+                setHRInterviewData={setHRInterviewData}
+                secondInterviewData={secondInterviewData}
+                setSecondInterviewData={setSecondInterviewData}
+                finalInterviewData={finalInterviewData}
+                setFinalInterviewData={setFinalInterviewData}
+                followupDataMap={followupDataMap}
+                setFollowupDataMap={setFollowupDataMap}
+              />
+            </Layout>
+          }
+        />
 
+        {/* 未定義のパスは候補者一覧へリダイレクト */}
+        <Route path="*" element={<Navigate to="/candidates" />} />
+      </Routes>
 
-                    <Box>
-                      {isSubmitted ? (
-                        <>
-                          {/* 表示専用モード：ふりがな */}
-                          <Typography
-                            fullWidth
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{
-                              fontSize: { xs: '0.7rem', md: '0.7rem' },
-                              height: { xs: '30px', md: '15px' },
-                              padding: '8px',
-                            }}
-                          >
-                            {profileData.furigana || "ふりがな"}
-                          </Typography>
+      {/* FAB候補者一覧ボタンは全画面共通 */}
+      <Fab
+        variant="extended"
+        sx={{
+          position: "fixed",
+          bottom: 16,
+          left: 16,
+          zIndex: 1000,
+          backgroundColor: "red",
+          color: "black",
+        }}
+        onClick={handleOpen}
+      >
+        辞退
+      </Fab>
+      {/*確認用モーダル*/}
+      <Dialog
+        open={open} // モーダルの開閉状態
+        onClose={handleClose} // モーダル外をクリックしたら閉じる
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-description"
+      >
+        <DialogTitle id="confirm-dialog-title">辞退の確認</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="confirm-dialog-description">
+            本当に辞退しますか？この操作は取り消せません。
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            キャンセル
+          </Button>
+          <Button onClick={handleConfirm} color="error">
+            辞退する
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-                          {/* 表示専用モード：名前 */}
-                          <Typography
-                            fullWidth
-                            variant="h6"
-                            sx={{
-                              mt: { xs: 0.5, md: 1 },
-                              fontSize: { xs: '1rem', md: '2rem' },
-                              height: { xs: '40px', md: '50px' },
-                              padding: '8px',
-                            }}
-                          >
-                            {profileData.name || "名前"}
-                          </Typography>
-                        </>
-                        ) : (
-                        <>
-                          {/* 編集モード：ふりがなのTextField */}
-                          <TextField
-                            fullWidth
-                            label="ふりがな"
-                            name="furigana"
-                            value={profileData.furigana}
-                            onChange={handleInputChange}
-                            variant="outlined"
-                            sx={{
-                              '& .MuiInputBase-input': {
-                                fontSize: { xs: '0.7rem', md: '0.7rem' },
-                                height: { xs: '30px', md: '15px' }, // 入力部分の高さを調整
-                                padding: '8px',
-                              },
-                              '& .MuiInputLabel-root': {
-                                fontSize: { xs: '0.7rem', md: '0.7rem' },
-                              },
-                            }}
-                          />
-
-                          {/* 編集モード：名前のTextField */}
-                          <TextField
-                            fullWidth
-                            label="名前"
-                            name="name"
-                            value={profileData.name}
-                            onChange={handleInputChange}
-                            variant="outlined"
-                            sx={{
-                              mt: { xs: 0.5, md: 1 },
-                              '& .MuiInputBase-input': {
-                                fontSize: { xs: '1rem', md: '2rem' },
-                                height: { xs: '40px', md: '50px' }, // 入力部分の高さを調整
-                                padding: '8px',
-                              },
-                              '& .MuiInputLabel-root': {
-                                fontSize: { xs: '1rem', md: '1rem' },
-                              },
-                            }}
-                          />
-                        </>
-                      )}
-                    </Box>
-
-
-
-                    
-                  </Box>
-                  <input
-                    type="file"
-                    name="photo"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    style={{ display: "none" }}
-                    onChange={handleFileUpload}
-                  />
-
-                  {/* Divider で区切り */}
-                  <Divider sx={{ my: 1 }} />
-
-                  {/* 追加の項目群 */}
-                  <Grid container spacing={1}>
-                    <Grid item xs={12} sm={12} md={12}>
-                      { isSubmitted ? (
-                        // 表示専用モード：入力済みの「職務経歴」を表示
-                        <Typography variant="body1">
-                          <strong>職務経歴:</strong> {profileData.career || "未入力"}
-                        </Typography>
-                      ) : (
-                        // 編集モード：TextField による入力フォーム
-                        <TextField
-                          fullWidth
-                          label="職務経歴"
-                          name="career"
-                          value={profileData.career}
-                          onChange={handleInputChange}
-                          variant="outlined"
-                          sx={{
-                            '& .MuiInputBase-input': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                              padding: { xs: '6px 8px', md: '6px 8px' },
-                            },
-                            '& .MuiInputLabel-root': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                            },
-                            '& .MuiOutlinedInput-root': {
-                              height: { xs: '40px', md: '40px' },
-                            },
-                          }}
-                        />
-                      )}
-
-                    </Grid>
-
-
-
-
-                    <Grid item xs={12} sm={12} md={12}>
-                      {isSubmitted ? (
-                        <Typography variant="body1">
-                          <strong>履歴書:</strong>{" "}
-                          {profileData.resume ? (
-                            <Link
-                              onClick={() => {
-                                const fileURL = URL.createObjectURL(profileData.resume);
-                                window.open(fileURL, "_blank");
-                              }}
-                              sx={{ cursor: "pointer", color: "#007bff" }}
-                            >
-                              📎 {profileData.resume.name}
-                            </Link>
-                          ) : (
-                            "未アップロード"
-                          )}
-                        </Typography>
-                      ) : (
-                        <>
-                          <Button
-                            variant="contained"
-                            component="label"
-                            fullWidth
-                            sx={{ fontSize: { xs: "0.8rem", md: "0.8rem" } }}
-                          >
-                            履歴書をアップロード
-                            <input
-                              type="file"
-                              name="resume"
-                              hidden
-                              onChange={handleFileUpload}
-                            />
-                          </Button>
-                          {profileData.resume && (
-                            <Typography variant="body2" sx={{ mt: 0.5 }}>
-                              アップロード済み: {profileData.resume.name}
-                            </Typography>
-                          )}
-                        </>
-                      )}
-                    </Grid>
-
-                    {/* 職務経歴書フィールド */}
-                    <Grid item xs={12} sm={12} md={12}>
-                      {isSubmitted ? (
-                        <Typography variant="body1">
-                          <strong>職務経歴書:</strong>{" "}
-                          {profileData.careerSheet ? (
-                            <Link
-                              onClick={() => {
-                                const fileURL = URL.createObjectURL(profileData.careerSheet);
-                                window.open(fileURL, "_blank");
-                              }}
-                              sx={{ cursor: "pointer", color: "#007bff" }}
-                            >
-                              📎 {profileData.careerSheet.name}
-                            </Link>
-                          ) : (
-                            "未アップロード"
-                          )}
-                        </Typography>
-                      ) : (
-                        <>
-                          <Button
-                            variant="contained"
-                            component="label"
-                            fullWidth
-                            sx={{ fontSize: { xs: "0.8rem", md: "0.8rem" } }}
-                          >
-                            職務経歴書をアップロード
-                            <input
-                              type="file"
-                              name="careerSheet"
-                              hidden
-                              onChange={handleFileUpload}
-                            />
-                          </Button>
-                          {profileData.careerSheet && (
-                            <Typography variant="body2" sx={{ mt: 0.5 }}>
-                              アップロード済み: {profileData.careerSheet.name}
-                            </Typography>
-                          )}
-                        </>
-                      )}
-                    </Grid>
-
-
-
-
-                    <Grid item xs={12} sm={12} md={12}>
-                      { isSubmitted ? (
-                        // 表示専用モード：入力済みの「職務経歴」を表示
-                        <Typography variant="body1">
-                          <strong>経路:</strong> {profileData.route || "未入力"}
-                        </Typography>
-                      ) : (
-                        /* 編集モード：TextField による入力フォーム */
-                        <TextField
-                          fullWidth
-                          label="経路"
-                          name="route"
-                          value={profileData.route}
-                          onChange={handleInputChange}
-                          variant="outlined"
-                          sx={{
-                            '& .MuiInputBase-input': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                              padding: { xs: '6px 8px', md: '6px 8px' },
-                            },
-                            '& .MuiInputLabel-root': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                            },
-                            '& .MuiOutlinedInput-root': {
-                              height: { xs: '40px', md: '40px' },
-                            },
-                          }}
-                        />
-                      )}
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                      { isSubmitted ? (
-                        // 表示専用モード：入力済みの「職務経歴」を表示
-                        <Typography variant="body1">
-                          <strong>生年月日:</strong> {profileData.birthdate || "未入力"}
-                        </Typography>
-                      ) : (
-                        /* 編集モード：TextField による入力フォーム */
-                        <TextField
-                          fullWidth
-                          label="生年月日"
-                          name="birthdate"
-                          value={profileData.birthdate}
-                          onChange={handleInputChange}
-                          variant="outlined"
-                          sx={{
-                            '& .MuiInputBase-input': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                              padding: { xs: '6px 8px', md: '6px 8px' },
-                            },
-                            '& .MuiInputLabel-root': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                            },
-                            '& .MuiOutlinedInput-root': {
-                              height: { xs: '40px', md: '40px' },
-                            },
-                          }}
-                        />
-                      )}
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                      { isSubmitted ? (
-                        // 表示専用モード：入力済みの「職務経歴」を表示
-                        <Typography variant="body1">
-                          <strong>住所:</strong> {profileData.address || "未入力"}
-                        </Typography>
-                      ) : (
-                        /* 編集モード：TextField による入力フォーム */
-                        <TextField
-                          fullWidth
-                          label="住所"
-                          name="address"
-                          value={profileData.address}
-                          onChange={handleInputChange}
-                          variant="outlined"
-                          sx={{
-                            '& .MuiInputBase-input': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                              padding: { xs: '6px 8px', md: '6px 8px' },
-                            },
-                            '& .MuiInputLabel-root': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                            },
-                            '& .MuiOutlinedInput-root': {
-                              height: { xs: '40px', md: '40px' },
-                            },
-                          }}
-                        />
-                      )}
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                    { isSubmitted ? (
-                        // 表示専用モード：入力済みの「職務経歴」を表示
-                        <Typography variant="body1">
-                          <strong>出身:</strong> {profileData.origin || "未入力"}
-                        </Typography>
-                      ) : (
-                        /* 編集モード：TextField による入力フォーム */
-                        <TextField
-                          fullWidth
-                          label="出身"
-                          name="origin"
-                          value={profileData.origin}
-                          onChange={handleInputChange}
-                          variant="outlined"
-                          sx={{
-                            '& .MuiInputBase-input': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                              padding: { xs: '6px 8px', md: '6px 8px' },
-                            },
-                            '& .MuiInputLabel-root': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                            },
-                            '& .MuiOutlinedInput-root': {
-                              height: { xs: '40px', md: '40px' },
-                            },
-                          }}
-                        />
-                      )}
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                      { isSubmitted ? (
-                        // 表示専用モード：入力済みの「職務経歴」を表示
-                        <Typography variant="body1">
-                          <strong>就業状況:</strong> {profileData.employmentStatus || "未入力"}
-                        </Typography>
-                      ) : (
-                        /* 編集モード：TextField による入力フォーム */
-                        <TextField
-                          fullWidth
-                          label="就業状況"
-                          name="employmentStatus"
-                          value={profileData.employmentStatus}
-                          onChange={handleInputChange}
-                          variant="outlined"
-                          sx={{
-                            '& .MuiInputBase-input': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                              padding: { xs: '6px 8px', md: '6px 8px' },
-                            },
-                            '& .MuiInputLabel-root': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                            },
-                            '& .MuiOutlinedInput-root': {
-                              height: { xs: '40px', md: '40px' },
-                            },
-                          }}
-                        />
-                      )}
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                      { isSubmitted ? (
-                        // 表示専用モード：入力済みの「職務経歴」を表示
-                        <Typography variant="body1">
-                          <strong>大学:</strong> {profileData.university || "未入力"}
-                        </Typography>
-                      ) : (
-                        /* 編集モード：TextField による入力フォーム */
-                        <TextField
-                          fullWidth
-                          label="大学"
-                          name="university"
-                          value={profileData.university}
-                          onChange={handleInputChange}
-                          variant="outlined"
-                          sx={{
-                            '& .MuiInputBase-input': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                              padding: { xs: '6px 8px', md: '6px 8px' },
-                            },
-                            '& .MuiInputLabel-root': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                            },
-                            '& .MuiOutlinedInput-root': {
-                              height: { xs: '40px', md: '40px' },
-                            },
-                          }}
-                        />
-                      )}
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                      { isSubmitted ? (
-                        // 表示専用モード：入力済みの「職務経歴」を表示
-                        <Typography variant="body1">
-                          <strong>高校:</strong> {profileData.highSchool || "未入力"}
-                        </Typography>
-                      ) : (
-                        /* 編集モード：TextField による入力フォーム */
-                        <TextField
-                          fullWidth
-                          label="高校"
-                          name="highSchool"
-                          value={profileData.highSchool}
-                          onChange={handleInputChange}
-                          variant="outlined"
-                          sx={{
-                            '& .MuiInputBase-input': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                              padding: { xs: '6px 8px', md: '6px 8px' },
-                            },
-                            '& .MuiInputLabel-root': {
-                              fontSize: { xs: '0.8rem', md: '0.8rem' },
-                            },
-                            '& .MuiOutlinedInput-root': {
-                              height: { xs: '40px', md: '40px' },
-                            },
-                          }}
-                        />
-                      )}
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-                        {/* 編集ボタンの追加 */}
-                        <Button
-                          variant="outlined"
-                          onClick={() => setIsSubmitted(false)}
-                          sx={{ fontSize: { xs: '0.8rem', md: '0.8rem' }, ml: 1 }}
-                        >
-                          編集
-                        </Button>
-                        <Button
-                          variant="contained"
-                          onClick={handleRegister}
-                          sx={{ fontSize: { xs: '0.8rem', md: '0.8rem' }, ml: 1 }}
-                        >
-                          登録
-                        </Button>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Card>
-              </Grid>
-
-
-
-
-
-
-
-
-
-
-              {/* 右側セクション */}
-              <Grid item xs={12} md={8}>
-                <StepNavigator
-                  steps={stepLabels}
-                  currentStep={currentStep}
-                  setCurrentStep={setCurrentStep}
-                  onAddStep={handleAddStep}
-                />
-                <Routes>
-                  <Route path="/" element={<ProfileScreen profileData={profileData} setProfileData={setProfileData} />} />
-                  <Route path="/entryAdjustment" element={<EntryAdjustmentScreen profileData={profileData} setProfileData={setProfileData} />} />
-                  <Route path="/casual" element={<CasualScreen profileData={profileData} casualData={casualData} setCasualData={setCasualData} />} />
-                  <Route path="/casualAdjustment" element={<CasualAdjustmentScreen profileData={profileData} casualData={casualData} />} />
-                  <Route path="/firstInterview" element={<FirstInterviewScreen profileData={profileData} firstInterviewData={firstInterviewData} setFirstInterviewData={setFirstInterviewData} />} />
-                  <Route path="/firstInterviewAdjustment" element={<FirstInterviewAdjustmentScreen profileData={profileData} casualData={casualData} firstInterviewData={firstInterviewData} />} />
-                  <Route path="/secondInterview" element={<SecondInterviewScreen profileData={profileData} secondInterviewData={secondInterviewData} setSecondInterviewData={setSecondInterviewData} />} />
-                  <Route path="/secondInterviewAdjustment" element={<SecondInterviewAdjustmentScreen profileData={profileData} casualData={casualData} firstInterviewData={firstInterviewData} secondInterviewData={secondInterviewData} />} />
-                  <Route path="/finalInterview" element={<FinalInterviewScreen profileData={profileData} finalInterviewData={finalInterviewData} setFinalInterviewData={setFinalInterviewData} />} />
-                  <Route path="/finalInterviewAdjustment" element={<FinalInterviewAdjustmentScreen profileData={profileData} casualData={casualData} firstInterviewData={firstInterviewData} secondInterviewData={secondInterviewData} finalInterviewData={finalInterviewData} />} />
-                  {/* <Route path="/other" element={<OtherScreens profileData={profileData} casualData={casualData} />} /> */}
-                  <Route path="/followup/:followupId" element={<OtherScreens profileData={profileData} followupData={followupData} setFollowupData={setFollowupData}/>} />
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              </Grid>
-            </Grid>
-          </Container>
-        </Box>
-      </Box>
-    </Router>
+      <Fab
+        variant="extended"
+        color="primary"
+        sx={{ position: "fixed", bottom: 16, right: 16, zIndex: 1000 }}
+        onClick={() => navigate("/candidates")}
+      >
+        候補者一覧
+      </Fab>
+    </>
   );
-}  
-
-
-
-
+}
 
 export default App;
-// 

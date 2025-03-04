@@ -1,26 +1,31 @@
 import React from "react";
-import { Container, Box, Typography, TextField, Button, Grid, Card } from "@mui/material";
+import { Grid, Card, Typography, TextField, FormControl, Select, MenuItem } from "@mui/material";
+import { SMaxContainer, SCard, SItemsBox, SLeftGridItem, SEachItemBox, InterviewItemTypography, SRightGridItem, SNoteBox, SSubmitButton, SBottomGrid, SWithdrawButton } from "../styles/Interview-StyledComponents";
 
 function SecondInterviewScreen({ profileData, secondInterviewData, setSecondInterviewData }) {
+  // フォームの入力変更
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setSecondInterviewData((prev) => ({
       ...prev,
-      [name]: value || "",
+      [name]: value,
     }));
   };
 
   // 「保存」ボタン押下時の処理
   const handleSaveSecondInterview = async () => {
-    // profileData.id が候補者登録後にセットされている前提
+    // candidate_id は profileData.id がセットされている前提
     const secondInterviewPayload = {
       candidate_id: profileData.id,
-      pass_fail: secondInterviewData.pass_fail,
-      sincerity: secondInterviewData.sincerity,
-      team_love: secondInterviewData.team_love,
-      charm: secondInterviewData.charm,
-      humility: secondInterviewData.humility,
-      notes: secondInterviewData.notes,
+      interview_date: secondInterviewData.interview_date,
+      interviewer: secondInterviewData.interviewer,      
+      result: secondInterviewData.result,                
+      skill: secondInterviewData.skill,                   
+      personality: secondInterviewData.personality,       
+      character: secondInterviewData.character,          
+      values: secondInterviewData.values,                
+      culture: secondInterviewData.culture,               
+      remarks: secondInterviewData.remarks,               
     };
 
     console.log("送信前の二次面接データ:", secondInterviewPayload);
@@ -33,7 +38,7 @@ function SecondInterviewScreen({ profileData, secondInterviewData, setSecondInte
       if (response.ok) {
         const data = await response.json();
         console.log("二次面接データ登録成功", data);
-        // 必要に応じて、成功時のフィードバック（通知表示や画面遷移）を追加
+        // 必要に応じて成功時の処理を追加
       } else {
         console.error("二次面接データ登録エラー:", response.statusText);
       }
@@ -42,104 +47,175 @@ function SecondInterviewScreen({ profileData, secondInterviewData, setSecondInte
     }
   };
 
-  // 各評価項目の入力欄のスタイルを「追加の項目群」の例に合わせる
-  const fieldSx = {
-    '& .MuiInputBase-input': {
-      fontSize: { xs: '0.8rem', md: '0.8rem' },
-      padding: { xs: '6px 8px', md: '6px 8px' },
-    },
-    '& .MuiInputLabel-root': {
-      fontSize: { xs: '0.8rem', md: '0.8rem' },
-    },
-    '& .MuiOutlinedInput-root': {
-      height: { xs: '40px', md: '40px' },
-    },
-  };
-
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Grid container spacing={4}>
-        {/* 左側セクション: 評価項目（1列表示） */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, boxShadow: 3 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <TextField
-                fullWidth
-                label="合否"
-                name="pass_fail"
-                value={secondInterviewData.pass_fail || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="誠実"
-                name="sincerity"
-                value={secondInterviewData.sincerity || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="チーム愛"
-                name="team_love"
-                value={secondInterviewData.team_love || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="愛嬌"
-                name="charm"
-                value={secondInterviewData.charm || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="謙虚さと責任感"
-                name="humility"
-                value={secondInterviewData.humility || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-            </Box>
-          </Card>
-        </Grid>
+    <SMaxContainer maxWidth={false} disableGutters>
+      <SCard>
+        <Grid
+          container
+          spacing={0}
+          alignItems={{ xs: "center", md: "flex-start" }}
+          sx={{ height: "100%" }}
+        >
+          {/* 左カラム: 実施日～カルチャー */}
+          <SLeftGridItem item xs={12} md={4}>
+            <SItemsBox>
+              {/* 実施日（カレンダー選択） */}
+              <SEachItemBox>
+                <InterviewItemTypography>実施日</InterviewItemTypography>
+                <TextField
+                  type="date"
+                  size="small"
+                  sx={{ width: 180 }}
+                  name="interview_date"
+                  value={secondInterviewData.interview_date || ""}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </SEachItemBox>
 
-        {/* 右側セクション: 備考 */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, boxShadow: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              備考
-            </Typography>
-            <TextField
-              fullWidth
-              name="notes"
-              value={secondInterviewData.notes || ""}
-              onChange={handleInputChange}
-              multiline
-              rows={10}
-              variant="outlined"
-            />
-          </Card>
-        </Grid>
+              {/* 担当者（テキスト入力） */}
+              <SEachItemBox>
+                <InterviewItemTypography>担当者</InterviewItemTypography>
+                <TextField
+                  size="small"
+                  sx={{ width: 180 }}
+                  name="interviewer"
+                  value={secondInterviewData.interviewer || ""}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
+              </SEachItemBox>
 
-        {/* 下部: 保存ボタン */}
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button variant="contained" onClick={handleSaveSecondInterview} sx={{ fontSize: '0.8rem' }}>
+              {/* 合否（プルダウン: 合格/不合格） */}
+              <SEachItemBox>
+                <InterviewItemTypography>合否</InterviewItemTypography>
+                <FormControl size="small" sx={{ width: 180 }}>
+                  <Select
+                    name="result"
+                    value={secondInterviewData.result || ""}
+                    onChange={handleInputChange}
+                  >
+                    <MenuItem value="合格">合格</MenuItem>
+                    <MenuItem value="不合格">不合格</MenuItem>
+                  </Select>
+                </FormControl>
+              </SEachItemBox>
+
+              {/* スキル（1/2/3/不明） */}
+              <SEachItemBox>
+                <InterviewItemTypography>スキル</InterviewItemTypography>
+                <FormControl size="small" sx={{ width: 180 }}>
+                  <Select
+                    name="skill"
+                    value={secondInterviewData.skill || ""}
+                    onChange={handleInputChange}
+                  >
+                    <MenuItem value="1">1</MenuItem>
+                    <MenuItem value="2">2</MenuItem>
+                    <MenuItem value="3">3</MenuItem>
+                    <MenuItem value="不明">不明</MenuItem>
+                  </Select>
+                </FormControl>
+              </SEachItemBox>
+
+              {/* 人間性（1/2/3/不明） */}
+              <SEachItemBox>
+                <InterviewItemTypography>人間性</InterviewItemTypography>
+                <FormControl size="small" sx={{ width: 180 }}>
+                  <Select
+                    name="personality"
+                    value={secondInterviewData.personality || ""}
+                    onChange={handleInputChange}
+                  >
+                    <MenuItem value="1">1</MenuItem>
+                    <MenuItem value="2">2</MenuItem>
+                    <MenuItem value="3">3</MenuItem>
+                    <MenuItem value="不明">不明</MenuItem>
+                  </Select>
+                </FormControl>
+              </SEachItemBox>
+
+              {/* 性格（1/2/3/不明） */}
+              <SEachItemBox>
+                <InterviewItemTypography>性格</InterviewItemTypography>
+                <FormControl size="small" sx={{ width: 180 }}>
+                  <Select
+                    name="character"
+                    value={secondInterviewData.character || ""}
+                    onChange={handleInputChange}
+                  >
+                    <MenuItem value="1">1</MenuItem>
+                    <MenuItem value="2">2</MenuItem>
+                    <MenuItem value="3">3</MenuItem>
+                    <MenuItem value="不明">不明</MenuItem>
+                  </Select>
+                </FormControl>
+              </SEachItemBox>
+
+              {/* 価値観（1/2/3/不明） */}
+              <SEachItemBox>
+                <InterviewItemTypography>価値観</InterviewItemTypography>
+                <FormControl size="small" sx={{ width: 180 }}>
+                  <Select
+                    name="values"
+                    value={secondInterviewData.values || ""}
+                    onChange={handleInputChange}
+                  >
+                    <MenuItem value="1">1</MenuItem>
+                    <MenuItem value="2">2</MenuItem>
+                    <MenuItem value="3">3</MenuItem>
+                    <MenuItem value="不明">不明</MenuItem>
+                  </Select>
+                </FormControl>
+              </SEachItemBox>
+
+              {/* カルチャー（1/2/3/不明） */}
+              <SEachItemBox>
+                <InterviewItemTypography>カルチャー</InterviewItemTypography>
+                <FormControl size="small" sx={{ width: 180 }}>
+                  <Select
+                    name="culture"
+                    value={secondInterviewData.culture || ""}
+                    onChange={handleInputChange}
+                  >
+                    <MenuItem value="1">1</MenuItem>
+                    <MenuItem value="2">2</MenuItem>
+                    <MenuItem value="3">3</MenuItem>
+                    <MenuItem value="不明">不明</MenuItem>
+                  </Select>
+                </FormControl>
+              </SEachItemBox>
+            </SItemsBox>
+          </SLeftGridItem>
+
+          {/* 右カラム: 備考 */}
+          <SRightGridItem item xs={12} md={8}>
+            <SNoteBox>
+              <Typography variant="h6" gutterBottom>
+                備考
+              </Typography>
+              <TextField
+                fullWidth
+                name="remarks"
+                value={secondInterviewData.remarks || ""}
+                onChange={handleInputChange}
+                multiline
+                rows={16}
+                variant="outlined"
+              />
+            </SNoteBox>
+          </SRightGridItem>
+
+          {/* 下部: 保存ボタン */}
+          <SBottomGrid item xs={12} md={12}>
+            <SSubmitButton variant="contained" onClick={handleSaveSecondInterview}>
               保存
-            </Button>
-          </Box>
+            </SSubmitButton>
+          </SBottomGrid>
         </Grid>
-      </Grid>
-    </Container>
+      </SCard>
+    </SMaxContainer>
   );
 }
 

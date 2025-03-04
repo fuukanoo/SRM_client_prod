@@ -1,19 +1,25 @@
 import React from "react";
-import { Container, Card, Typography, TextField, Button } from "@mui/material";
+import { Grid, Card, Typography, TextField, FormControl, Select, MenuItem } from "@mui/material";
+import { SMaxContainer, SCard, SItemsBox, SLeftGridItem, SEachItemBox, InterviewItemTypography, SRightGridItem, SNoteBox, SSubmitButton, SBottomGrid, SWithdrawButton } from "../styles/Interview-StyledComponents";
 import { useParams } from "react-router-dom";
 
-function OtherScreens({ profileData, followupData, setFollowupData }) {
-  // URLから followupId を取得（例: "followUp1", "followUp2" など）
+function OtherScreens({ profileData, followupDataMap, setFollowupDataMap }) {
   const { followupId } = useParams();
 
-  // 現在のフォロー面談のメモ（存在しなければ空文字）
-  const currentNotes = followupData[followupId] || "";
+  const currentFollowupData = followupDataMap[followupId] || {
+    interview_date: "",
+    interviewer: "",
+    remarks: ""
+  };
 
-  const handleFollowupInputChange = (e) => {
-    const { value } = e.target;
-    setFollowupData((prevData) => ({
-      ...prevData,
-      [followupId]: value,
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFollowupDataMap((prev) => ({
+      ...prev,
+      [followupId]: {
+        ...currentFollowupData,
+        [name]: value,
+      },
     }));
   };
 
@@ -22,8 +28,9 @@ function OtherScreens({ profileData, followupData, setFollowupData }) {
     // profileData.id に候補者登録後のIDがセットされている前提
     const followupPayload = {
       candidate_id: profileData.id,
-      notes: currentNotes,
-      // interview_date を入力する場合はここで追加（例: interview_date: "2025-02-14"）
+      interview_date: currentFollowupData.interview_date,
+      interviewer: currentFollowupData.interviewer,
+      remarks: currentFollowupData.remarks,
     };
 
     console.log("送信前のフォロー面談データ:", followupPayload);
@@ -46,29 +53,69 @@ function OtherScreens({ profileData, followupData, setFollowupData }) {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Card sx={{ p: 3, boxShadow: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          備考記入欄
-        </Typography>
-        <TextField
-          fullWidth
-          name="notes"
-          value={currentNotes}
-          onChange={handleFollowupInputChange}
-          multiline
-          rows={5}
-          variant="outlined"
-        />
-        <Button
-          variant="contained"
-          onClick={handleSaveFollowup}
-          sx={{ mt: 2, fontSize: "0.8rem" }}
+    <SMaxContainer maxWidth={false} disableGutters>
+      <SCard>
+        <Grid container
+          spacing={0}
+          alignItems={{ xs: "center", md: "flex-start" }}
+          sx={{ height: "100%" }}
         >
-          保存
-        </Button>
-      </Card>
-    </Container>
+          {/* 左カラム: 実施日～カルチャー */}
+          <SLeftGridItem item xs={12} md={4}>
+          <SItemsBox>
+            {/* 実施日 */}
+            <SEachItemBox>
+              <InterviewItemTypography>実施日</InterviewItemTypography>
+              <TextField
+                type = "date"
+                sx={{ width: 180 }}
+                name="interview_date"
+                value={currentFollowupData.interview_date || ""}
+                onChange={handleInputChange}
+                variant="outlined"
+              />
+            </SEachItemBox>
+            {/*　担当者 */}
+            <SEachItemBox>
+              <InterviewItemTypography>担当者</InterviewItemTypography>
+              <TextField
+                sx={{ width: 180 }}
+                name="interviewer"
+                value={currentFollowupData.interviewer || ""}
+                onChange={handleInputChange}
+                variant="outlined"
+              />
+            </SEachItemBox>
+          </SItemsBox>
+          </SLeftGridItem>
+
+          {/* 右カラム: 備考 */}
+          <SRightGridItem item xs={12} md={8}>
+            <SNoteBox>
+              <Typography variant="h6" gutterBottom>
+                備考
+              </Typography>
+              <TextField
+                fullWidth
+                name="remarks"
+                value={currentFollowupData.remarks || ""}
+                onChange={handleInputChange}
+                multiline
+                rows={16}
+                variant="outlined"
+              />
+            </SNoteBox>
+          </SRightGridItem>
+
+          {/* 下部 ボタン */}
+          <SBottomGrid item xs={12} md={12}>
+            <SSubmitButton variant="contained" onClick={handleSaveFollowup}>
+              保存
+            </SSubmitButton>
+          </SBottomGrid>
+        </Grid>
+      </SCard>
+    </SMaxContainer>
   );
 }
 

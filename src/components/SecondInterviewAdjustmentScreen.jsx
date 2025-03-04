@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Container, Box, Typography, Divider, Link, Grid} from "@mui/material";
+import { Grid, Typography, TextField, FormControl, Select, MenuItem, Box, InputLabel } from "@mui/material";
+import { SAdjustmentContainer, SAdjustmentBox } from "../styles/InterviewAdjustment-Styledcomponents";
 
-function SecondInterviewAdjustmentScreen({
-  profileData,
-  casualData,
-  firstInterviewData,
-  secondInterviewData,
-}) {
+function SecondInterviewAdjustmentScreen({ profileData, casualData, firstInterviewData, HRInterviewData, secondInterviewData, }) {
+
+  const [status, setStatus] = useState("");
+  
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState(null);
   const [resumePreviewUrl, setResumePreviewUrl] = useState(null);
   const [careerSheetPreviewUrl, setCareerSheetPreviewUrl] = useState(null);
@@ -36,122 +35,170 @@ function SecondInterviewAdjustmentScreen({
   }, [profileData.careerSheet]);
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <SAdjustmentContainer>
       <Grid container spacing={4}>
         {/* カジュアル面談結果 */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Box>
-            <Typography variant="h5" gutterBottom>
-              カジュアル
-            </Typography>
-            <Typography variant="body1">
-              <strong>合否:</strong> {casualData.result || "未入力"}
-            </Typography>
-            <Typography variant="body1">
-              <strong>誠実:</strong> {casualData.honesty || "未入力"}
-            </Typography>
-            <Typography variant="body1">
-              <strong>チーム愛:</strong> {casualData.teamLove || "未入力"}
-            </Typography>
-            <Typography variant="body1">
-              <strong>愛嬌:</strong> {casualData.charm || "未入力"}
-            </Typography>
-            <Typography variant="body1">
-              <strong>謙虚さと責任感:</strong> {casualData.humility || "未入力"}
-            </Typography>
-            <Typography variant="body1">
-              <strong>備考:</strong> {casualData.notes || "未入力"}
-            </Typography>
-          </Box>
+        <Grid item xs={12} md={3}>
+        {/* カジュアル画面の情報 */}
+        <Box>
+          <Typography variant="h5" gutterBottom>
+            カジュアル
+          </Typography>
+          <Typography variant="body1">
+            <strong>実施日:</strong> {casualData.interview_date || "未入力"}
+          </Typography>
+          <Typography variant="body1">
+            <strong>担当者:</strong> {casualData.interviewer || "未入力"}
+          </Typography>
+          <Typography variant="body1">
+            <strong>合否:</strong> {casualData.result || "未入力"}
+          </Typography>
+          <Typography variant="body1">
+            <strong>人間性:</strong> {casualData.personality || "未入力"}
+          </Typography>
+          <Typography variant="body1">
+            <strong>性格:</strong> {casualData.character || "未入力"}
+          </Typography>
+          <Typography variant="body1">
+            <strong>備考:</strong> {casualData.remarks || "未入力"}
+          </Typography>
+        </Box>
         </Grid>
-
+  
         {/* 1次面接結果 */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} md={3}>
           <Box>
             <Typography variant="h5" gutterBottom>
               1次面接
             </Typography>
-              <Typography variant="body1">
-                <strong>合否:</strong>{" "}
-                {firstInterviewData.pass_fail || "未入力"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>意見主張:</strong>{" "}
-                {firstInterviewData.assertion || "未入力"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>言い訳:</strong>{" "}
-                {firstInterviewData.excuse || "未入力"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>誠実:</strong>{" "}
-                {firstInterviewData.sincerity || "未入力"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>逃げ癖:</strong>{" "}
-                {firstInterviewData.avoidance || "未入力"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>イニシアチブ:</strong>{" "}
-                {firstInterviewData.initiative || "未入力"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>チーム愛:</strong>{" "}
-                {firstInterviewData.teamLove || "未入力"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>愛嬌:</strong>{" "}
-                {firstInterviewData.charm || "未入力"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>謙虚さと責任感:</strong>{" "}
-                {firstInterviewData.humility || "未入力"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>事実と解釈:</strong>{" "}
-                {firstInterviewData.factInterpretation || "未入力"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>備考:</strong>{" "}
-                {firstInterviewData.notes || "未入力"}
-              </Typography>
+            <Typography variant="body1">
+              <strong>実施日:</strong>{" "}
+              {firstInterviewData.interview_date || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>担当者:</strong>{" "}
+              {firstInterviewData.interviewer || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>合格:</strong>{" "}
+              {firstInterviewData.result || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>スキル:</strong>{" "}
+              {firstInterviewData.skill || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>人間性:</strong>{" "}
+              {firstInterviewData.personality || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>性格:</strong>{" "}
+              {firstInterviewData.character || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>価値観:</strong>{" "}
+              {firstInterviewData.values || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>カルチャー:</strong>{" "}
+              {firstInterviewData.culture || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>備考:</strong>{" "}
+              {firstInterviewData.remarks || "未入力"}
+            </Typography>
+          </Box>
+        </Grid>
+
+        {/* 人事面接結果 */}
+        <Grid item xs={12} md={3}>
+          <Box>
+            <Typography variant="h5" gutterBottom>
+              人事面接
+            </Typography>
+            <Typography variant="body1">
+              <strong>実施日:</strong>{" "}
+              {HRInterviewData.interview_date || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>担当者:</strong>{" "}
+              {HRInterviewData.interviewer || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>価値観:</strong>{" "}
+              {HRInterviewData.values || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>カルチャー:</strong>{" "}
+              {HRInterviewData.culture || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>備考:</strong>{" "}
+              {HRInterviewData.remarks || "未入力"}
+            </Typography>
           </Box>
         </Grid>
 
         {/* 2次面接結果 */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} md={3}>
           <Box>
             <Typography variant="h5" gutterBottom>
               2次面接
             </Typography>
             <Typography variant="body1">
-              <strong>合否:</strong>{" "}
-              {secondInterviewData.pass_fail || "未入力"}
+              <strong>実施日:</strong>{" "}
+              {secondInterviewData.interview_date || "未入力"}
             </Typography>
             <Typography variant="body1">
-              <strong>誠実:</strong>{" "}
-              {secondInterviewData.sincerity || "未入力"}
+              <strong>担当者:</strong>{" "}
+              {secondInterviewData.interviewer || "未入力"}
             </Typography>
             <Typography variant="body1">
-              <strong>チーム愛:</strong>{" "}
-              {secondInterviewData.team_love || "未入力"}
+              <strong>合格:</strong>{" "}
+              {secondInterviewData.result || "未入力"}
             </Typography>
             <Typography variant="body1">
-              <strong>愛嬌:</strong>{" "}
-              {secondInterviewData.charm || "未入力"}
+              <strong>スキル:</strong>{" "}
+              {secondInterviewData.skill || "未入力"}
             </Typography>
             <Typography variant="body1">
-              <strong>謙虚さと責任感:</strong>{" "}
-              {secondInterviewData.humility || "未入力"}
+              <strong>人間性:</strong>{" "}
+              {secondInterviewData.personality || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>性格:</strong>{" "}
+              {secondInterviewData.character || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>価値観:</strong>{" "}
+              {secondInterviewData.values || "未入力"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>カルチャー:</strong>{" "}
+              {secondInterviewData.culture || "未入力"}
             </Typography>
             <Typography variant="body1">
               <strong>備考:</strong>{" "}
-              {secondInterviewData.notes || "未入力"}
+              {secondInterviewData.remarks || "未入力"}
             </Typography>
           </Box>
         </Grid>
       </Grid>
-    </Container>
+      <SAdjustmentBox>
+        <FormControl sx={{ width: 180, backgroundColor: "white" }}>
+          <InputLabel id="status-label">案内中/設定済み</InputLabel>
+          <Select
+            labelId="status-label"
+            name="Adjustment"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <MenuItem value="案内中">案内中</MenuItem>
+            <MenuItem value="設定済み">設定済み</MenuItem>
+          </Select>
+        </FormControl>
+      </SAdjustmentBox>  
+    </SAdjustmentContainer>
   );
 }
 

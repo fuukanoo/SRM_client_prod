@@ -1,5 +1,6 @@
 import React from "react";
-import {Box, Container, Grid, Card, Typography, Divider, TextField, Button, Link} from "@mui/material";
+import { Grid, Card, Typography, TextField, FormControl, Select, MenuItem } from "@mui/material";
+import { SMaxContainer, SCard, SItemsBox, SLeftGridItem, SEachItemBox, InterviewItemTypography, SRightGridItem, SNoteBox, SSubmitButton, SBottomGrid, SWithdrawButton } from "../styles/Interview-StyledComponents";
 
 function CasualScreen({ profileData, casualData, setCasualData }) {
   const handleInputChange = (e) => {
@@ -13,12 +14,12 @@ function CasualScreen({ profileData, casualData, setCasualData }) {
     // candidate_id はprofileData.idがセットされている前提
     const casualInterviewData = {
       candidate_id: profileData.id, // 必須フィールド。候補者登録後に得たIDを使う
+      interview_date: casualData.interview_date,
+      interviewer: casualData.interviewer,
       result: casualData.result,
-      honesty: casualData.honesty,
-      team_love: casualData.teamLove,
-      charm: casualData.charm,
-      humility: casualData.humility,
-      notes: casualData.notes,
+      personality: casualData.personality,
+      character: casualData.character,
+      remarks: casualData.remarks,
     };
 
     console.log("送信前のカジュアル面接データ:", casualInterviewData);
@@ -46,84 +47,118 @@ function CasualScreen({ profileData, casualData, setCasualData }) {
     : null;
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Grid container spacing={4}>
-        {/* 中央セクション: 評価項目 */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, boxShadow: 3 }}>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <SMaxContainer
+      maxWidth={false} 
+      disableGutters>
+      <SCard>
+        <Grid container spacing={0} alignItems={{ xs: "center", md: "flex-start" }} sx = {{height: "100%" }}>
+          <SLeftGridItem item xs={12} md={4}>
+          <SItemsBox>
+            {/* 実施日*/}
+            <SEachItemBox>
+              <InterviewItemTypography>実施日</InterviewItemTypography>
               <TextField
-                fullWidth
-                label="合否"
-                name="result"
-                value={casualData.result || ""}
+                sx={{ width: 180 }}
+                type="date"
+                name="interview_date"
+                value={casualData.interview_date || ""}
                 onChange={handleInputChange}
                 variant="outlined"
               />
+            </SEachItemBox>
+
+            {/*　担当者 */}
+            <SEachItemBox>
+              <InterviewItemTypography>担当者</InterviewItemTypography>
               <TextField
-                fullWidth
-                label="誠実"
-                name="honesty"
-                value={casualData.honesty || ""}
+                sx={{ width: 180 }}
+                name="interviewer"
+                value={casualData.interviewer || ""}
                 onChange={handleInputChange}
                 variant="outlined"
               />
-              <TextField
-                fullWidth
-                label="チーム愛"
-                name="teamLove"
-                value={casualData.teamLove || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <TextField
-                fullWidth
-                label="愛嬌"
-                name="charm"
-                value={casualData.charm || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <TextField
-                fullWidth
-                label="謙虚さと責任感"
-                name="humility"
-                value={casualData.humility || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-            </Box>
-          </Card>
-        </Grid>
+            </SEachItemBox>
+
+            {/* 合否 */}
+            <SEachItemBox>
+              <InterviewItemTypography>合否</InterviewItemTypography>
+              <FormControl sx={{ width: 180 }}>
+                <Select
+                  name="result"
+                  value={casualData.result || ""}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="合格">合格</MenuItem>
+                  <MenuItem value="不合格">不合格</MenuItem>
+                </Select>
+              </FormControl>
+            </SEachItemBox>
+
+            {/* 人間性 */}
+            <SEachItemBox>
+              <InterviewItemTypography>人間性</InterviewItemTypography>
+              <FormControl sx={{ width: 180 }}>
+                <Select
+                  name="personality"
+                  value={casualData.personality || ""}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="不明">不明</MenuItem>
+                </Select>
+              </FormControl>
+            </SEachItemBox>
+
+            {/* 性格 */}
+            <SEachItemBox>
+              <InterviewItemTypography>性格</InterviewItemTypography>
+              <FormControl sx={{ width: 180 }}>
+                <Select
+                  name="character"
+                  value={casualData.character || ""}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="不明">不明</MenuItem>
+                </Select>
+              </FormControl>
+            </SEachItemBox>
+          </SItemsBox>
+          </SLeftGridItem>
   
-        {/* 右側セクション: 備考入力欄 */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, boxShadow: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              備考
-            </Typography>
-            <TextField
-              fullWidth
-              name="notes"
-              value={casualData.notes || ""}
-              onChange={handleInputChange}
-              multiline
-              rows={5}
-              variant="outlined"
-            />
-          </Card>
+          {/* 右側セクション: 備考入力欄 */}
+          <SRightGridItem item xs={12} md={8}>
+            <SNoteBox>
+              <Typography variant="h6" gutterBottom>
+                備考
+              </Typography>
+              <TextField
+                fullWidth
+                name="remarks"
+                value={casualData.remarks || ""}
+                onChange={handleInputChange}
+                multiline
+                rows={16}
+                variant="outlined"
+              />
+            </SNoteBox>
+            </SRightGridItem>
+            <SBottomGrid item xs={12} md={12}>
+              {/* 右下に固定配置する保存ボタン */}
+              <SSubmitButton
+                variant="contained"
+                onClick={handleSaveCasual}
+              >
+                保存
+              </SSubmitButton>
+            </SBottomGrid>
         </Grid>
-  
-        {/* 下部: 保存ボタン */}
-        <Grid item xs={12}>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-            <Button variant="contained" onClick={handleSaveCasual} sx={{ fontSize: "0.8rem" }}>
-              保存
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
-    </Container>
+      </SCard>
+    </SMaxContainer>
   );
 }
 

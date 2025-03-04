@@ -1,5 +1,6 @@
 import React from "react";
-import { Container, Box, Typography, TextField, Button, Grid, Card} from "@mui/material";
+import { Grid, Card, Typography, TextField, FormControl, Select, MenuItem } from "@mui/material";
+import { SMaxContainer, SCard, SItemsBox, SLeftGridItem, SEachItemBox, SRightGridItem, InterviewItemTypography, SNoteBox, SSubmitButton, SBottomGrid, SWithdrawButton } from "../styles/Interview-StyledComponents";
 
 function FirstInterviewScreen({profileData, firstInterviewData, setFirstInterviewData }) {
   const handleInputChange = (e) => {
@@ -15,17 +16,15 @@ function FirstInterviewScreen({profileData, firstInterviewData, setFirstIntervie
     // candidate_id は profileData.id がセットされている前提
     const firstInterviewPayload = {
       candidate_id: profileData.id,
-      pass_fail: firstInterviewData.pass_fail,
-      assertion: firstInterviewData.assertion,
-      excuse: firstInterviewData.excuse,
-      sincerity: firstInterviewData.sincerity,
-      avoidance: firstInterviewData.avoidance,
-      initiative: firstInterviewData.initiative,
-      teamLove: firstInterviewData.teamLove,
-      charm: firstInterviewData.charm,
-      humility: firstInterviewData.humility,
-      factInterpretation: firstInterviewData.factInterpretation,
-      notes: firstInterviewData.notes,
+      interview_date: firstInterviewData.interview_date,
+      interviewer: firstInterviewData.interviewer,
+      result: firstInterviewData.result,
+      skill: firstInterviewData.skill,
+      personality: firstInterviewData.personality,
+      character: firstInterviewData.character,
+      values: firstInterviewData.values,
+      culture: firstInterviewData.culture,
+      remarks: firstInterviewData.remarks,
     };
 
     console.log("送信前の一次面接データ:", firstInterviewPayload);
@@ -62,135 +61,165 @@ function FirstInterviewScreen({profileData, firstInterviewData, setFirstIntervie
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Grid container spacing={4}>
-        {/* 左側セクション: 評価項目を1列表示 */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, boxShadow: 3 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+    <SMaxContainer
+      maxWidth={false}
+      disableGutters
+    >
+      <SCard>
+        <Grid container spacing={0} alignItems={{ xs: "center", md: "flex-start" }} sx = {{height: "100%" }}>
+          <SLeftGridItem item xs={12} md={4}>
+          <SItemsBox>
+            {/* 実施日 */}
+            <SEachItemBox>
+              <InterviewItemTypography>実施日</InterviewItemTypography>
               <TextField
-                fullWidth
-                label="合否"
-                name="pass_fail"
-                value={firstInterviewData.pass_fail || ""}
+                size="small"
+                type = "date"
+                sx={{ width: 180 }}
+                name="interview_date"
+                value={firstInterviewData.interview_date || ""}
                 onChange={handleInputChange}
                 variant="outlined"
-                sx={fieldSx}
-                
               />
+            </SEachItemBox>
+            {/* 担当者 */}
+            <SEachItemBox>
+              <InterviewItemTypography>担当者</InterviewItemTypography>
               <TextField
-                fullWidth
-                label="意見主張"
-                name="assertion"
-                value={firstInterviewData.assertion || ""}
+                size="small"
+                sx={{ width: 180 }}
+                name="interviewer"
+                value={firstInterviewData.interviewer || ""}
                 onChange={handleInputChange}
                 variant="outlined"
-                sx={fieldSx}
               />
-              <TextField
-                fullWidth
-                label="言い訳"
-                name="excuse"
-                value={firstInterviewData.excuse || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="誠実"
-                name="sincerity"
-                value={firstInterviewData.sincerity || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="逃げ癖"
-                name="avoidance"
-                value={firstInterviewData.avoidance || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="イニシアチブ"
-                name="initiative"
-                value={firstInterviewData.initiative || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="チーム愛"
-                name="teamLove"
-                value={firstInterviewData.teamLove || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="愛嬌"
-                name="charm"
-                value={firstInterviewData.charm || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="謙虚さと責任感"
-                name="humility"
-                value={firstInterviewData.humility || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-              <TextField
-                fullWidth
-                label="事実と解釈"
-                name="factInterpretation"
-                value={firstInterviewData.factInterpretation || ""}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={fieldSx}
-              />
-            </Box>
-          </Card>
-        </Grid>
+            </SEachItemBox>
+            {/* 合否 */}
+            <SEachItemBox>
+              <InterviewItemTypography>合否</InterviewItemTypography>
+              <FormControl size="small" sx={{ width: 180 }}>
+                <Select
+                  name="result"
+                  value={firstInterviewData.result || ""}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="合格">合格</MenuItem>
+                  <MenuItem value="不合格">不合格</MenuItem>
+                </Select>
+              </FormControl>
+            </SEachItemBox>
+            {/* スキル */}
+            <SEachItemBox>
+              <InterviewItemTypography>スキル</InterviewItemTypography>
+              <FormControl size="small" sx={{ width: 180 }}>
+                <Select
+                  name="skill"
+                  value={firstInterviewData.skill || ""}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="不明">不明</MenuItem>
+                </Select>
+              </FormControl>
+            </SEachItemBox>
+            {/* 人間性 */}
+            <SEachItemBox>
+              <InterviewItemTypography>人間性</InterviewItemTypography>
+              <FormControl size="small" sx={{ width: 180 }}>
+                <Select
+                  name="personality"
+                  value={firstInterviewData.personality || ""}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="不明">不明</MenuItem>
+                </Select>
+              </FormControl>
+            </SEachItemBox>
+            {/* 性格 */}
+            <SEachItemBox>
+              <InterviewItemTypography>性格</InterviewItemTypography>
+              <FormControl size="small" sx={{ width: 180 }}>
+                <Select
+                  name="character"
+                  value={firstInterviewData.character || ""}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="不明">不明</MenuItem>
+                </Select>
+              </FormControl>
+            </SEachItemBox>
+            {/* 価値観 */}
+            <SEachItemBox>
+              <InterviewItemTypography>価値観</InterviewItemTypography>
+              <FormControl size="small" sx={{ width: 180 }}>
+                <Select
+                  name="values"
+                  value={firstInterviewData.values || ""}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="不明">不明</MenuItem>
+                </Select>
+              </FormControl>
+            </SEachItemBox>
+            {/* カルチャー */}
+            <SEachItemBox>
+              <InterviewItemTypography>カルチャー</InterviewItemTypography>
+              <FormControl size="small" sx={{ width: 180 }}>
+                <Select
+                  name="culture"
+                  value={firstInterviewData.culture || ""}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="1">1</MenuItem>
+                  <MenuItem value="2">2</MenuItem>
+                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="不明">不明</MenuItem>
+                </Select>
+              </FormControl>
+            </SEachItemBox>
+          </SItemsBox>
+          </SLeftGridItem>
 
-        {/* 右側セクション: 備考 */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, boxShadow: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              備考
-            </Typography>
-            <TextField
-              fullWidth
-              name="notes"
-              value={firstInterviewData.notes || ""}
-              onChange={handleInputChange}
-              multiline
-              rows={10}
-              variant="outlined"
-            />
-          </Card>
-        </Grid>
-
-        {/* 下部: 保存ボタン */}
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button variant="contained" onClick={handleSaveFirstInterview} sx={{ fontSize: '0.8rem' }}>
+          {/* 右側セクション: 備考 */}
+          <SRightGridItem item xs={12} md={8}>
+            <SNoteBox>
+              <Typography variant="h6" gutterBottom>
+                備考
+              </Typography>
+              <TextField
+                fullWidth
+                name="remarks"
+                value={firstInterviewData.remarks || ""}
+                onChange={handleInputChange}
+                multiline
+                rows={16}
+                variant="outlined"
+              />
+            </SNoteBox>
+          </SRightGridItem>
+          <SBottomGrid item xs={12} md={12}>
+            {/* 右下に固定配置する保存ボタン */}
+            <SSubmitButton
+              variant="contained"
+              onClick={handleSaveFirstInterview}
+            >
               保存
-            </Button>
-          </Box>
+            </SSubmitButton>
+          </SBottomGrid>
         </Grid>
-      </Grid>
-    </Container>
+      </SCard>
+    </SMaxContainer>
   );
 }
 
